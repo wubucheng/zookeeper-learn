@@ -1,5 +1,6 @@
 package me.wubc.zookeeperlearn.curator;
 
+import me.wubc.zookeeperlearn.config.ZkBaseConfig;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
@@ -13,16 +14,13 @@ import org.apache.zookeeper.data.Stat;
  */
 public class CuratorDemo {
 
-    public static final String CONNECT_URL = "127.0.0.1:2181";
-    public static final String NAME_SPACE = "curator";
-    public static final String NODE_PATH = "/demo/node1";
 
     public static void main(String[] args) throws Exception {
         CuratorFramework curatorFramework = CuratorFrameworkFactory.builder()
-                .connectString(CONNECT_URL)
-                .sessionTimeoutMs(400)
+                .connectString(ZkBaseConfig.CONNECT_URL)
+                .sessionTimeoutMs(ZkBaseConfig.TIME_OUT)
                 .retryPolicy(new ExponentialBackoffRetry(1000, 3))
-                .namespace(NAME_SPACE)
+                .namespace(ZkBaseConfig.CURATOR_NAME_SPACE)
                 .build();
 
         // 开启连接
@@ -31,13 +29,13 @@ public class CuratorDemo {
         // 创建节点，并赋值
         curatorFramework.create().creatingParentsIfNeeded()
                 .withMode(CreateMode.PERSISTENT)
-                .forPath(NODE_PATH, "0".getBytes());
+                .forPath(ZkBaseConfig.NODE_PATH, "0".getBytes());
         // 设置节点值
-        curatorFramework.setData().forPath(NODE_PATH, "1".getBytes());
+        curatorFramework.setData().forPath(ZkBaseConfig.NODE_PATH, "1".getBytes());
 
         // 或值值并将节点信息存放到stat
         Stat stat = new Stat();
-        curatorFramework.getData().storingStatIn(stat).forPath(NODE_PATH);
+        curatorFramework.getData().storingStatIn(stat).forPath(ZkBaseConfig.NODE_PATH);
 
         curatorFramework.close();
 
