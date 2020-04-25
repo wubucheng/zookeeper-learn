@@ -60,7 +60,7 @@ public class DistributedLockDemo implements Lock, Watcher {
             Stat stat = zooKeeper.exists(prev, true);
             if (stat != null) {
                 System.out.println(Thread.currentThread().getName() + "->等待获取锁" + ROOT_LOCK + "/" + prev + "释放");
-                CountDownLatch countDownLatch = new CountDownLatch(1);
+                countDownLatch = new CountDownLatch(1);
                 countDownLatch.await();
                 // process的执行才会走到下面来
                 System.out.println(Thread.currentThread().getName() + "->获取锁成功");
@@ -94,14 +94,14 @@ public class DistributedLockDemo implements Lock, Watcher {
 
             List<String> childrenNodes = zooKeeper.getChildren(ROOT_LOCK, false);
             // 从小到大排序
-            TreeSet<Object> treeSet = new TreeSet<>();
+            SortedSet<Object> treeSet = new TreeSet<>();
             for (String childrenNode : childrenNodes) {
                 treeSet.add(ROOT_LOCK + "/" + childrenNode);
             }
 
             // 自己创建的顺序节点，是集合中的第一个
             if (CURRENT_LOCK.equals(treeSet.first())) {
-                System.out.println(Thread.currentThread().getName() + "线程获取到锁");
+                System.out.println(Thread.currentThread().getName() + "线程获取到锁"+CURRENT_LOCK);
                 return true;
             }
 
@@ -110,6 +110,7 @@ public class DistributedLockDemo implements Lock, Watcher {
             if (!lessSet.isEmpty()) {
                 // 返回最后一个
                 // 获取锁失败的节点获取当前节点上一个顺序节点，对此节点注册监听，当节点删除的时候通知当前节点
+                // 即当前获取锁的节点？
                 WAIT_LOCK = (String) lessSet.last();
             }
         } catch (KeeperException e) {
