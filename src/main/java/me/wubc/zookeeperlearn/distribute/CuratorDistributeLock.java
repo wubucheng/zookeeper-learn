@@ -21,6 +21,7 @@ public class CuratorDistributeLock {
                 .retryPolicy(new ExponentialBackoffRetry(3000, 3))
                 .namespace(ZkBaseConfig.CURATOR_NAME_SPACE)
                 .build();
+
         InterProcessMutex interProcessMutex = new InterProcessMutex(curatorFramework, "/locks");
         try {
             interProcessMutex.acquire();
